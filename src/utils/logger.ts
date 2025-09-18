@@ -26,26 +26,35 @@ class SimpleProgressIndicator implements ProgressIndicator {
   private logger: Logger;
   private startTime: number;
 
-  constructor(logger: Logger, private label: string) {
+  constructor(
+    logger: Logger,
+    private label: string
+  ) {
     this.logger = logger;
     this.startTime = Date.now();
   }
 
   update(current: number, total: number, message?: string): void {
     const percentage = Math.round((current / total) * 100);
-    const progressMessage = message ? `${this.label}: ${message} (${percentage}%)` : `${this.label}: ${percentage}%`;
+    const progressMessage = message
+      ? `${this.label}: ${message} (${percentage}%)`
+      : `${this.label}: ${percentage}%`;
     this.logger.debug(progressMessage);
   }
 
   complete(message?: string): void {
     const duration = Date.now() - this.startTime;
-    const completeMessage = message ? `${this.label}: ${message} (${duration}ms)` : `${this.label} completed in ${duration}ms`;
+    const completeMessage = message
+      ? `${this.label}: ${message} (${duration}ms)`
+      : `${this.label} completed in ${duration}ms`;
     this.logger.success(completeMessage);
   }
 
   fail(message?: string): void {
     const duration = Date.now() - this.startTime;
-    const failMessage = message ? `${this.label}: ${message} (${duration}ms)` : `${this.label} failed after ${duration}ms`;
+    const failMessage = message
+      ? `${this.label}: ${message} (${duration}ms)`
+      : `${this.label} failed after ${duration}ms`;
     this.logger.error(failMessage);
   }
 }
@@ -76,7 +85,11 @@ export class Logger {
     return level <= this.config.level;
   }
 
-  private formatMessage(level: LogLevel, message: string, emoji: string): string {
+  private formatMessage(
+    level: LogLevel,
+    message: string,
+    emoji: string
+  ): string {
     let formattedMessage = '';
 
     if (this.config.showTimestamps) {
@@ -109,7 +122,7 @@ export class Logger {
 
       // Include stack trace for errors in debug mode
       if (this.config.level >= LogLevel.DEBUG && args.length > 0) {
-        const errorArg = args.find(arg => arg instanceof Error);
+        const errorArg = args.find((arg) => arg instanceof Error);
         if (errorArg instanceof Error && errorArg.stack) {
           console.error('Stack trace:', errorArg.stack);
         }
@@ -172,19 +185,24 @@ export class Logger {
     }
   }
 
-  logValidationResult(type: string, errors: string[], warnings: string[], strict: boolean = false): void {
+  logValidationResult(
+    type: string,
+    errors: string[],
+    warnings: string[],
+    strict: boolean = false
+  ): void {
     if (errors.length > 0) {
       this.error(`${type} validation errors:`);
-      errors.forEach(error => this.error(`   • ${error}`));
+      errors.forEach((error) => this.error(`   • ${error}`));
     }
 
     if (warnings.length > 0) {
       if (strict) {
         this.error(`${type} validation warnings (strict mode):`);
-        warnings.forEach(warning => this.error(`   • ${warning}`));
+        warnings.forEach((warning) => this.error(`   • ${warning}`));
       } else {
         this.warn(`${type} validation warnings:`);
-        warnings.forEach(warning => this.warn(`   • ${warning}`));
+        warnings.forEach((warning) => this.warn(`   • ${warning}`));
       }
     }
 
@@ -201,6 +219,9 @@ export class Logger {
   }
 }
 
-export function createLogger(verbose: boolean = false, config?: Partial<LoggerConfig>): Logger {
+export function createLogger(
+  verbose: boolean = false,
+  config?: Partial<LoggerConfig>
+): Logger {
   return new Logger(verbose, config);
 }

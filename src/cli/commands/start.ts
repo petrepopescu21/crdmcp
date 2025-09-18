@@ -1,9 +1,7 @@
 import { existsSync } from 'fs';
 import { resolve } from 'path';
 import { watch } from 'chokidar';
-import {
-  McpServer,
-} from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { DataLoader } from '../../loaders/index.js';
 import { ToolRegistry } from '../../tools/index.js';
@@ -159,7 +157,6 @@ export async function startServer(argv: StartOptions) {
     if (argv.watch) {
       logger.info('🔄 File watching enabled - server will reload on changes');
     }
-
   } catch (error) {
     logger.error('Failed to start server:', error);
     process.exit(1);

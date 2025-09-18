@@ -54,13 +54,15 @@ export async function infoCommand(argv: InfoOptions) {
         description: crd.description,
         samplesAvailable: loadedData.samples.get(crd.kind)?.length || 0,
       })),
-      samples: Array.from(loadedData.samples.entries()).map(([kind, samples]) => ({
-        kind,
-        count: samples.length,
-        complexities: [...new Set(samples.map(s => s.complexity))],
-        tags: [...new Set(samples.flatMap(s => s.tags))],
-      })),
-      instructions: loadedData.instructions.map(inst => ({
+      samples: Array.from(loadedData.samples.entries()).map(
+        ([kind, samples]) => ({
+          kind,
+          count: samples.length,
+          complexities: [...new Set(samples.map((s) => s.complexity))],
+          tags: [...new Set(samples.flatMap((s) => s.tags))],
+        })
+      ),
+      instructions: loadedData.instructions.map((inst) => ({
         title: inst.title,
         tags: inst.tags,
         applicableCRDs: inst.detectedCRDs,
@@ -81,10 +83,12 @@ export async function infoCommand(argv: InfoOptions) {
         console.log(`directory: "${info.directory}"`);
         console.log('statistics:');
         Object.entries(info.statistics).forEach(([key, value]) => {
-          console.log(`  ${key}: ${typeof value === 'string' ? `"${value}"` : value}`);
+          console.log(
+            `  ${key}: ${typeof value === 'string' ? `"${value}"` : value}`
+          );
         });
         console.log('crds:');
-        info.crds.forEach(crd => {
+        info.crds.forEach((crd) => {
           console.log(`  - key: "${crd.key}"`);
           console.log(`    group: "${crd.group}"`);
           console.log(`    kind: "${crd.kind}"`);
@@ -115,14 +119,19 @@ export async function infoCommand(argv: InfoOptions) {
         if (info.crds.length > 0) {
           console.log('\n🔧 Custom Resource Definitions');
           console.log('─'.repeat(80));
-          console.log('Kind'.padEnd(20) + 'Group'.padEnd(25) + 'Scope'.padEnd(12) + 'Samples');
+          console.log(
+            'Kind'.padEnd(20) +
+              'Group'.padEnd(25) +
+              'Scope'.padEnd(12) +
+              'Samples'
+          );
           console.log('─'.repeat(80));
-          info.crds.forEach(crd => {
+          info.crds.forEach((crd) => {
             console.log(
               crd.kind.padEnd(20) +
-              crd.group.padEnd(25) +
-              crd.scope.padEnd(12) +
-              crd.samplesAvailable.toString()
+                crd.group.padEnd(25) +
+                crd.scope.padEnd(12) +
+                crd.samplesAvailable.toString()
             );
           });
         }
@@ -130,13 +139,15 @@ export async function infoCommand(argv: InfoOptions) {
         if (info.samples.length > 0) {
           console.log('\n📋 Sample Manifests');
           console.log('─'.repeat(60));
-          console.log('Resource Kind'.padEnd(20) + 'Count'.padEnd(8) + 'Complexities');
+          console.log(
+            'Resource Kind'.padEnd(20) + 'Count'.padEnd(8) + 'Complexities'
+          );
           console.log('─'.repeat(60));
-          info.samples.forEach(sample => {
+          info.samples.forEach((sample) => {
             console.log(
               sample.kind.padEnd(20) +
-              sample.count.toString().padEnd(8) +
-              sample.complexities.join(', ')
+                sample.count.toString().padEnd(8) +
+                sample.complexities.join(', ')
             );
           });
         }
@@ -144,13 +155,15 @@ export async function infoCommand(argv: InfoOptions) {
         if (info.instructions.length > 0) {
           console.log('\n📚 Instruction Documents');
           console.log('─'.repeat(80));
-          console.log('Title'.padEnd(30) + 'Category'.padEnd(15) + 'Applicable CRDs');
+          console.log(
+            'Title'.padEnd(30) + 'Category'.padEnd(15) + 'Applicable CRDs'
+          );
           console.log('─'.repeat(80));
-          info.instructions.forEach(inst => {
+          info.instructions.forEach((inst) => {
             console.log(
               inst.title.substring(0, 29).padEnd(30) +
-              inst.category.padEnd(15) +
-              inst.applicableCRDs.join(', ')
+                inst.category.padEnd(15) +
+                inst.applicableCRDs.join(', ')
             );
           });
         }
@@ -159,16 +172,16 @@ export async function infoCommand(argv: InfoOptions) {
           console.log('\n🏷️  All Available Tags');
           console.log('─'.repeat(40));
           const allTags = new Set([
-            ...info.samples.flatMap(s => s.tags),
-            ...info.instructions.flatMap(i => i.tags),
+            ...info.samples.flatMap((s) => s.tags),
+            ...info.instructions.flatMap((i) => i.tags),
           ]);
           console.log(Array.from(allTags).sort().join(', '));
 
           console.log('\n📂 Categories');
           console.log('─'.repeat(40));
           const categories = new Set([
-            ...info.crds.map(c => c.category),
-            ...info.instructions.map(i => i.category),
+            ...info.crds.map((c) => c.category),
+            ...info.instructions.map((i) => i.category),
           ]);
           console.log(Array.from(categories).sort().join(', '));
         }
@@ -180,18 +193,17 @@ export async function infoCommand(argv: InfoOptions) {
     // Show errors and warnings if any
     if (loadedData.statistics.errors.length > 0) {
       logger.error('❌ Errors encountered:');
-      loadedData.statistics.errors.forEach(error => {
+      loadedData.statistics.errors.forEach((error) => {
         logger.error(`   • ${error}`);
       });
     }
 
     if (loadedData.statistics.warnings.length > 0) {
       logger.warn('⚠️  Warnings:');
-      loadedData.statistics.warnings.forEach(warning => {
+      loadedData.statistics.warnings.forEach((warning) => {
         logger.warn(`   • ${warning}`);
       });
     }
-
   } catch (error) {
     logger.error('Failed to get directory info:', error);
     process.exit(1);

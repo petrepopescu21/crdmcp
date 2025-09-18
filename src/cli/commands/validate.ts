@@ -1,9 +1,9 @@
 import { existsSync } from 'fs';
 import { resolve } from 'path';
-import { DataLoader } from '../../loaders/index.js';
-import { Logger } from '../../utils/logger.js';
 import { validateDataDirectory } from '../../config/index.js';
+import { DataLoader } from '../../loaders/index.js';
 import type { ServerConfig } from '../../types/index.js';
+import { Logger } from '../../utils/logger.js';
 
 interface ValidateOptions {
   'data-dir': string;
@@ -39,7 +39,12 @@ export async function validateCommand(argv: ValidateOptions) {
     validationProgress.update(2, 6, 'Directory structure checked');
 
     // Use enhanced logging for validation results
-    logger.logValidationResult('Directory structure', structureValidation.errors, structureValidation.warnings, argv.strict);
+    logger.logValidationResult(
+      'Directory structure',
+      structureValidation.errors,
+      structureValidation.warnings,
+      argv.strict
+    );
 
     if (structureValidation.errors.length > 0) {
       hasErrors = true;
@@ -68,7 +73,12 @@ export async function validateCommand(argv: ValidateOptions) {
       validationProgress.update(4, 6, 'Data loading completed');
 
       // Use enhanced logging for data loading validation results
-      logger.logValidationResult('Data loading', loadedData.statistics.errors, loadedData.statistics.warnings, argv.strict);
+      logger.logValidationResult(
+        'Data loading',
+        loadedData.statistics.errors,
+        loadedData.statistics.warnings,
+        argv.strict
+      );
 
       if (loadedData.statistics.errors.length > 0) {
         hasErrors = true;
@@ -85,7 +95,9 @@ export async function validateCommand(argv: ValidateOptions) {
       logger.info('📈 Validation Summary:');
       logger.info(`   CRDs loaded: ${loadedData.statistics.crdsLoaded}`);
       logger.info(`   Samples loaded: ${loadedData.statistics.samplesLoaded}`);
-      logger.info(`   Instructions loaded: ${loadedData.statistics.instructionsLoaded}`);
+      logger.info(
+        `   Instructions loaded: ${loadedData.statistics.instructionsLoaded}`
+      );
       logger.info(`   Load time: ${loadedData.statistics.loadTime}ms`);
 
       // Additional validation checks
@@ -94,14 +106,23 @@ export async function validateCommand(argv: ValidateOptions) {
 
       // Check for orphaned samples (samples without corresponding CRDs)
       const orphanedSamples: string[] = [];
-      for (const [kind, samples] of loadedData.samples) {
-        const hasCRD = Array.from(loadedData.crds.values()).some(crd => crd.kind === kind);
+      for (const [kind] of loadedData.samples) {
+        const hasCRD = Array.from(loadedData.crds.values()).some(
+          (crd) => crd.kind === kind
+        );
         if (!hasCRD) {
           orphanedSamples.push(kind);
         }
       }
 
-      logger.logValidationResult('Orphaned samples', [], orphanedSamples.map(kind => `Sample kind '${kind}' has no corresponding CRD`), argv.strict);
+      logger.logValidationResult(
+        'Orphaned samples',
+        [],
+        orphanedSamples.map(
+          (kind) => `Sample kind '${kind}' has no corresponding CRD`
+        ),
+        argv.strict
+      );
 
       if (orphanedSamples.length > 0) {
         hasWarnings = true;
@@ -112,7 +133,7 @@ export async function validateCommand(argv: ValidateOptions) {
 
       // Check for CRDs without samples
       const crdsWithoutSamples: string[] = [];
-      for (const [key, crd] of loadedData.crds) {
+      for (const [, crd] of loadedData.crds) {
         if (!loadedData.samples.has(crd.kind)) {
           crdsWithoutSamples.push(crd.kind);
         }
@@ -120,14 +141,14 @@ export async function validateCommand(argv: ValidateOptions) {
 
       if (crdsWithoutSamples.length > 0 && argv.verbose) {
         logger.info('ℹ️  CRDs without sample manifests:');
-        crdsWithoutSamples.forEach(kind => {
+        crdsWithoutSamples.forEach((kind) => {
           logger.info(`   • ${kind}`);
         });
       }
 
       // Check for duplicate CRD names across different groups
       const kindCounts = new Map<string, string[]>();
-      for (const [key, crd] of loadedData.crds) {
+      for (const [, crd] of loadedData.crds) {
         if (!kindCounts.has(crd.kind)) {
           kindCounts.set(crd.kind, []);
         }
@@ -144,11 +165,10 @@ export async function validateCommand(argv: ValidateOptions) {
       if (duplicateKinds.length > 0) {
         hasWarnings = true;
         logger.warn('⚠️  Duplicate resource kinds across groups:');
-        duplicateKinds.forEach(duplicate => {
+        duplicateKinds.forEach((duplicate) => {
           logger.warn(`   • ${duplicate}`);
         });
       }
-
     } catch (error) {
       hasErrors = true;
       logger.error('❌ Failed to load data:', error);
@@ -170,7 +190,6 @@ export async function validateCommand(argv: ValidateOptions) {
       logger.success('✅ Validation passed successfully');
       process.exit(0);
     }
-
   } catch (error) {
     logger.error('Failed to validate directory:', error);
     process.exit(1);

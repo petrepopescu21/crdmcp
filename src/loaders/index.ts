@@ -22,7 +22,11 @@ export class DataLoader {
       // Validate data directory structure
       const validation = validateDataDirectory(this.config.dataDir);
 
-      this.logger.logValidationResult('Directory structure', validation.errors, validation.warnings);
+      this.logger.logValidationResult(
+        'Directory structure',
+        validation.errors,
+        validation.warnings
+      );
 
       if (!validation.valid) {
         progress.fail('Directory validation failed');

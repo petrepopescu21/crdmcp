@@ -22,13 +22,28 @@ export async function generateCommand(argv: GenerateOptions) {
         await generateCompanyStructure(outputDir, logger, argv.force || false);
         break;
       case 'sample-crd':
-        await generateSampleCRD(outputDir, argv.name || 'MyResource', logger, argv.force || false);
+        await generateSampleCRD(
+          outputDir,
+          argv.name || 'MyResource',
+          logger,
+          argv.force || false
+        );
         break;
       case 'sample-manifest':
-        await generateSampleManifest(outputDir, argv.name || 'MyResource', logger, argv.force || false);
+        await generateSampleManifest(
+          outputDir,
+          argv.name || 'MyResource',
+          logger,
+          argv.force || false
+        );
         break;
       case 'instruction':
-        await generateInstruction(outputDir, argv.name || 'My Resource Guide', logger, argv.force || false);
+        await generateInstruction(
+          outputDir,
+          argv.name || 'My Resource Guide',
+          logger,
+          argv.force || false
+        );
         break;
       default:
         logger.error(`Unknown generation type: ${argv.type}`);
@@ -36,14 +51,17 @@ export async function generateCommand(argv: GenerateOptions) {
     }
 
     logger.success(`✅ Generated ${argv.type} in ${outputDir}`);
-
   } catch (error) {
     logger.error('Failed to generate structure:', error);
     process.exit(1);
   }
 }
 
-async function generateCompanyStructure(outputDir: string, logger: Logger, force: boolean) {
+async function generateCompanyStructure(
+  outputDir: string,
+  logger: Logger,
+  force: boolean
+) {
   if (existsSync(outputDir) && !force) {
     logger.error(`Output directory already exists: ${outputDir}`);
     logger.info('Use --force to overwrite existing directory');
@@ -61,7 +79,7 @@ async function generateCompanyStructure(outputDir: string, logger: Logger, force
     'instructions/troubleshooting',
   ];
 
-  dirs.forEach(dir => {
+  dirs.forEach((dir) => {
     const fullPath = join(outputDir, dir);
     mkdirSync(fullPath, { recursive: true });
     logger.debug(`Created directory: ${fullPath}`);
@@ -140,7 +158,10 @@ spec:
   enabled: true
 `;
 
-  writeFileSync(join(outputDir, 'samples/simple', 'simple-web-service.yaml'), simpleSample);
+  writeFileSync(
+    join(outputDir, 'samples/simple', 'simple-web-service.yaml'),
+    simpleSample
+  );
   logger.debug('Generated simple sample: simple-web-service.yaml');
 
   // Generate intermediate sample
@@ -172,7 +193,10 @@ spec:
       cpu: "500m"
 `;
 
-  writeFileSync(join(outputDir, 'samples/intermediate', 'api-service.yaml'), intermediateSample);
+  writeFileSync(
+    join(outputDir, 'samples/intermediate', 'api-service.yaml'),
+    intermediateSample
+  );
   logger.debug('Generated intermediate sample: api-service.yaml');
 
   // Generate instruction document
@@ -265,7 +289,10 @@ To optimize resource usage:
 - Use \`Service\` and \`Ingress\` for network access
 `;
 
-  writeFileSync(join(outputDir, 'instructions/getting-started', 'myservice-guide.md'), instruction);
+  writeFileSync(
+    join(outputDir, 'instructions/getting-started', 'myservice-guide.md'),
+    instruction
+  );
   logger.debug('Generated instruction: myservice-guide.md');
 
   // Generate README
@@ -329,7 +356,12 @@ metadata:
   logger.debug('Generated README.md');
 }
 
-async function generateSampleCRD(outputDir: string, name: string, logger: Logger, force: boolean) {
+async function generateSampleCRD(
+  outputDir: string,
+  name: string,
+  logger: Logger,
+  force: boolean
+) {
   if (!existsSync(outputDir)) {
     mkdirSync(outputDir, { recursive: true });
   }
@@ -406,7 +438,12 @@ spec:
   logger.debug(`Generated CRD: ${fileName}`);
 }
 
-async function generateSampleManifest(outputDir: string, name: string, logger: Logger, force: boolean) {
+async function generateSampleManifest(
+  outputDir: string,
+  name: string,
+  logger: Logger,
+  force: boolean
+) {
   if (!existsSync(outputDir)) {
     mkdirSync(outputDir, { recursive: true });
   }
@@ -441,7 +478,12 @@ spec:
   logger.debug(`Generated manifest: ${fileName}`);
 }
 
-async function generateInstruction(outputDir: string, title: string, logger: Logger, force: boolean) {
+async function generateInstruction(
+  outputDir: string,
+  title: string,
+  logger: Logger,
+  force: boolean
+) {
   if (!existsSync(outputDir)) {
     mkdirSync(outputDir, { recursive: true });
   }

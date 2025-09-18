@@ -95,7 +95,12 @@ export async function main() {
         type: {
           describe: 'Type of structure to generate',
           type: 'string',
-          choices: ['company-structure', 'sample-crd', 'sample-manifest', 'instruction'],
+          choices: [
+            'company-structure',
+            'sample-crd',
+            'sample-manifest',
+            'instruction',
+          ],
         },
         output: {
           alias: 'o',
