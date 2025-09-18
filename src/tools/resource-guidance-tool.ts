@@ -8,7 +8,7 @@ export class ResourceGuidanceTool extends BaseTool {
   }
 
   get description(): string {
-    return 'Returns instructions and guidance relevant to specific resource types or categories';
+    return 'Returns instructions and guidance relevant to specific resource types or categories. CRITICAL: Always read these instructions before creating or deploying resources - they contain essential deployment procedures and requirements.';
   }
 
   get inputSchema(): any {

@@ -18,7 +18,14 @@
       "Bash(rm:*)",
       "Bash(npm test)",
       "Bash(NODE_OPTIONS=\"--experimental-vm-modules\" npm test)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(npm run cli:*)",
+      "Bash(npx crdmcp validate:*)",
+      "Bash(timeout 10 npx crdmcp start examplescompany-b --verbose)",
+      "Bash(timeout 10 npx crdmcp start \"examples\\company-b\" --verbose)",
+      "Bash(where:*)",
+      "Bash(crdmcp:*)",
+      "Bash(timeout 5 crdmcp start:*)"
     ],
     "deny": []
   }

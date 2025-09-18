@@ -8,7 +8,7 @@ export class ListResourcesTool extends BaseTool {
   }
 
   get description(): string {
-    return 'Lists all available custom resources with descriptions and filtering options';
+    return 'Lists all available custom resources with descriptions and filtering options. IMPORTANT: After listing resources, always use get-resource-details and get-resource-guidance to read instructions before creating any resources.';
   }
 
   get inputSchema(): any {
@@ -205,7 +205,10 @@ export class ListResourcesTool extends BaseTool {
     if (resources.length > 0) {
       const firstResource = resources[0];
       suggestions.push(
-        `Use "get-resource-details" with resourceType "${firstResource.resourceType}" for detailed information`
+        `NEXT STEPS: Use "get-resource-details" with resourceType "${firstResource.resourceType}" for schema and samples`
+      );
+      suggestions.push(
+        `THEN: Use "get-resource-guidance" to read deployment instructions before creating resources`
       );
 
       if (resources.some((r) => r.category === 'database')) {

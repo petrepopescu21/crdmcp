@@ -8,7 +8,7 @@ export class ResourceDetailsTool extends BaseTool {
   }
 
   get description(): string {
-    return 'Provides comprehensive information about a specific resource type including schema, samples, and guidance';
+    return 'Provides comprehensive information about a specific resource type including schema, samples, and guidance. ALWAYS use this tool before creating resources to understand the schema and see available examples.';
   }
 
   get inputSchema(): any {
