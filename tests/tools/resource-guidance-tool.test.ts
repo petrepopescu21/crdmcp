@@ -275,7 +275,7 @@ describe('ResourceGuidanceTool', () => {
 
       expect(result.success).toBe(false);
       expect(result.suggestions).toBeDefined();
-      expect(result.suggestions?.some(s => s.includes('similar resources'))).toBe(true);
+      expect(result.suggestions?.some(s => s.includes('Available tags'))).toBe(true);
     });
   });
 

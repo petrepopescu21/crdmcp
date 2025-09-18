@@ -14,15 +14,13 @@ describe('ResourceDetailsTool', () => {
   describe('basic functionality', () => {
     it('should have correct name and description', () => {
       expect(tool.name).toBe('get-resource-details');
-      expect(tool.description).toContain('detailed information');
+      expect(tool.description).toContain('comprehensive information');
     });
 
     it('should have proper input schema', () => {
       const schema = tool.inputSchema;
       expect(schema).toBeDefined();
       expect(schema.resourceType).toBeDefined();
-      expect(schema.includeSchema).toBeDefined();
-      expect(schema.includeRelated).toBeDefined();
     });
   });
 
@@ -34,10 +32,10 @@ describe('ResourceDetailsTool', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
-      expect(result.data.resource).toBeDefined();
-      expect(result.data.resource.kind).toBe('TestResource');
-      expect(result.data.resource.group).toBe('example.com');
-      expect(result.data.resource.description).toBe('A test resource for unit testing');
+      expect(result.data.metadata).toBeDefined();
+      expect(result.data.metadata.kind).toBe('TestResource');
+      expect(result.data.metadata.group).toBe('example.com');
+      expect(result.data.metadata.description).toBe('A test resource for unit testing');
     });
 
     it('should get details for existing resource by kind only', async () => {
@@ -46,7 +44,7 @@ describe('ResourceDetailsTool', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.resource.kind).toBe('TestResource');
+      expect(result.data.metadata.kind).toBe('TestResource');
     });
 
     it('should get details for resource by short name', async () => {
@@ -55,7 +53,7 @@ describe('ResourceDetailsTool', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.resource.kind).toBe('TestResource');
+      expect(result.data.metadata.kind).toBe('TestResource');
     });
 
     it('should return error for non-existent resource', async () => {
@@ -76,7 +74,7 @@ describe('ResourceDetailsTool', () => {
       });
 
       expect(result.success).toBe(true);
-      const resource = result.data.resource;
+      const resource = result.data.metadata;
       expect(resource.group).toBe('databases.example.com');
       expect(resource.plural).toBe('postgresqlclusters');
       expect(resource.singular).toBe('postgresqlcluster');
@@ -122,14 +120,14 @@ describe('ResourceDetailsTool', () => {
       // Related resources would be found through instructions mentioning other CRDs
     });
 
-    it('should not include related resources when includeRelated is false', async () => {
+    it('should always include related resources field', async () => {
       const result = await tool.execute({
-        resourceType: 'PostgreSQLCluster',
-        includeRelated: false
+        resourceType: 'PostgreSQLCluster'
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.relatedResources).toBeUndefined();
+      expect(result.data.relatedResources).toBeDefined();
+      expect(Array.isArray(result.data.relatedResources)).toBe(true);
     });
   });
 
@@ -140,7 +138,7 @@ describe('ResourceDetailsTool', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.resource.kind).toBe('TestResource');
+      expect(result.data.metadata.kind).toBe('TestResource');
     });
 
     it('should find resource by uppercase short name', async () => {
@@ -149,7 +147,7 @@ describe('ResourceDetailsTool', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.resource.kind).toBe('PostgreSQLCluster');
+      expect(result.data.metadata.kind).toBe('PostgreSQLCluster');
     });
   });
 
@@ -184,8 +182,8 @@ describe('ResourceDetailsTool', () => {
 
       expect(result.success).toBe(true);
       expect(result.metadata).toBeDefined();
-      expect(result.metadata?.query).toBe('TestResource');
-      expect(result.metadata?.resolvedKey).toBe('example.com/TestResource');
+      expect(result.metadata!.samplesAvailable).toBeDefined();
+      expect(result.metadata!.instructionsFound).toBeDefined();
     });
 
     it('should include sample and instruction counts', async () => {
@@ -194,8 +192,8 @@ describe('ResourceDetailsTool', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.sampleCount).toBe(1);
-      expect(result.data.instructionCount).toBe(1);
+      expect(result.metadata!.samplesAvailable).toBe(1);
+      expect(result.metadata!.instructionsFound).toBe(1);
     });
   });
 
@@ -206,9 +204,9 @@ describe('ResourceDetailsTool', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data.resource.versions).toContain('v1');
-      expect(result.data.resource.versions).toContain('v1beta1');
-      expect(result.data.resource.versions.length).toBe(2);
+      expect(result.data.metadata.versions).toContain('v1');
+      expect(result.data.metadata.versions).toContain('v1beta1');
+      expect(result.data.metadata.versions.length).toBe(2);
     });
 
     it('should work with resources that have no samples', async () => {
@@ -229,7 +227,7 @@ describe('ResourceDetailsTool', () => {
 
       expect(result.success).toBe(true);
       expect(result.data.samples).toHaveLength(0);
-      expect(result.data.sampleCount).toBe(0);
+      expect(result.metadata!.samplesAvailable).toBe(0);
     });
   });
 });

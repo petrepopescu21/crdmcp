@@ -17,9 +17,4 @@ export default {
   },
   testMatch: ['**/tests/**/*.test.ts'],
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/index.ts'],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
-  },
 };

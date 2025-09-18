@@ -41,7 +41,7 @@ export class SampleLoader {
       for (const filePath of files) {
         try {
           const fileContent = readFileSync(filePath, 'utf8');
-          const documents = loadAll(fileContent) as any[];
+          const documents = loadAll(fileContent) as unknown[];
 
           for (const doc of documents) {
             if (!doc || typeof doc !== 'object') continue;
@@ -98,19 +98,21 @@ export class SampleLoader {
     return { samples, errors, warnings };
   }
 
-  private isKubernetesManifest(doc: any): boolean {
+  private isKubernetesManifest(doc: unknown): doc is Record<string, unknown> {
     return (
-      doc &&
+      doc !== null &&
       typeof doc === 'object' &&
-      typeof doc.apiVersion === 'string' &&
-      typeof doc.kind === 'string' &&
-      doc.metadata &&
-      typeof doc.metadata === 'object'
+      'apiVersion' in doc &&
+      typeof (doc as Record<string, unknown>).apiVersion === 'string' &&
+      'kind' in doc &&
+      typeof (doc as Record<string, unknown>).kind === 'string' &&
+      'metadata' in doc &&
+      typeof (doc as Record<string, unknown>).metadata === 'object'
     );
   }
 
   private createSampleManifest(
-    doc: any,
+    doc: Record<string, unknown>,
     filePath: string,
     fileContent: string
   ): SampleManifest {
@@ -133,9 +135,9 @@ export class SampleLoader {
 
     return {
       content: doc,
-      apiVersion: doc.apiVersion,
-      kind: doc.kind,
-      metadata: doc.metadata,
+      apiVersion: doc.apiVersion as string,
+      kind: doc.kind as string,
+      metadata: doc.metadata as Record<string, unknown>,
       filePath,
       description,
       tags: [...new Set(tags)], // Remove duplicates
@@ -168,7 +170,7 @@ export class SampleLoader {
   }
 
   private determineComplexity(
-    doc: any,
+    doc: Record<string, unknown>,
     fileContent: string
   ): 'simple' | 'intermediate' | 'advanced' {
     let complexityScore = 0;
@@ -183,10 +185,14 @@ export class SampleLoader {
     if (content.includes('securityContext')) complexityScore += 1;
 
     // Multiple containers
-    if (doc.spec?.template?.spec?.containers?.length > 1) complexityScore += 2;
+    const spec = doc.spec as Record<string, unknown> | undefined;
+    const template = spec?.template as Record<string, unknown> | undefined;
+    const templateSpec = template?.spec as Record<string, unknown> | undefined;
+    const containers = templateSpec?.containers as unknown[] | undefined;
+    if (containers && containers.length > 1) complexityScore += 2;
 
     // Init containers
-    if (doc.spec?.template?.spec?.initContainers) complexityScore += 2;
+    if (templateSpec?.initContainers) complexityScore += 2;
 
     // Volume mounts
     if (content.includes('volumeMounts')) complexityScore += 1;
@@ -218,12 +224,15 @@ export class SampleLoader {
   }
 
   private extractSampleDescription(
-    doc: any,
+    doc: Record<string, unknown>,
     fileName: string,
     fileContent: string
   ): string {
     // Try to get description from annotations
-    const annotations = doc.metadata?.annotations;
+    const metadata = doc.metadata as Record<string, unknown> | undefined;
+    const annotations = metadata?.annotations as
+      | Record<string, string>
+      | undefined;
     if (annotations?.['description']) {
       return annotations['description'];
     }
@@ -246,7 +255,7 @@ export class SampleLoader {
 
     // Generate from filename and resource info
     const baseName = fileName.replace(/\.(ya?ml)$/i, '');
-    const resourceName = doc.metadata?.name || 'unnamed';
+    const resourceName = (metadata?.name as string | undefined) || 'unnamed';
 
     return `${generateDescription(baseName)} - ${doc.kind} example${
       resourceName !== 'unnamed' ? ` (${resourceName})` : ''
