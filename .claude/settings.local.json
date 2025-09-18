@@ -15,7 +15,9 @@
       "Bash(npm run server:*)",
       "Bash(node:*)",
       "WebFetch(domain:github.com)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(npm test)",
+      "Bash(NODE_OPTIONS=\"--experimental-vm-modules\" npm test)"
     ],
     "deny": []
   }

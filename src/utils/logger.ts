@@ -30,3 +30,7 @@ export class Logger {
     this.debug(`${label} completed in ${duration}ms`);
   }
 }
+
+export function createLogger(verbose: boolean = false): Logger {
+  return new Logger(verbose);
+}
