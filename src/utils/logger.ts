@@ -3,23 +3,23 @@
 export class Logger {
   constructor(private verbose: boolean = false) {}
 
-  info(message: string, ...args: any[]): void {
+  info(message: string, ...args: unknown[]): void {
     console.error(`ℹ️  ${message}`, ...args);
   }
 
-  warn(message: string, ...args: any[]): void {
+  warn(message: string, ...args: unknown[]): void {
     console.error(`⚠️  ${message}`, ...args);
   }
 
-  error(message: string, ...args: any[]): void {
+  error(message: string, ...args: unknown[]): void {
     console.error(`❌ ${message}`, ...args);
   }
 
-  success(message: string, ...args: any[]): void {
+  success(message: string, ...args: unknown[]): void {
     console.error(`✅ ${message}`, ...args);
   }
 
-  debug(message: string, ...args: any[]): void {
+  debug(message: string, ...args: unknown[]): void {
     if (this.verbose) {
       console.error(`🔍 ${message}`, ...args);
     }

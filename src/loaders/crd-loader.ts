@@ -42,7 +42,7 @@ export class CRDLoader {
       for (const filePath of files) {
         try {
           const fileContent = readFileSync(filePath, 'utf8');
-          const documents = loadAll(fileContent) as any[];
+          const documents = loadAll(fileContent) as unknown[];
 
           for (const doc of documents) {
             if (!doc || typeof doc !== 'object') continue;
@@ -90,7 +90,7 @@ export class CRDLoader {
     return { crds, errors, warnings };
   }
 
-  private isCRDDocument(doc: any): doc is CRDDefinition {
+  private isCRDDocument(doc: unknown): doc is CRDDefinition {
     return (
       doc &&
       typeof doc === 'object' &&
