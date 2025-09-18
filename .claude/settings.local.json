@@ -18,7 +18,8 @@
       "Bash(rm:*)",
       "Bash(npm test)",
       "Bash(NODE_OPTIONS=\"--experimental-vm-modules\" npm test)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(npm run cli:*)"
     ],
     "deny": []
   }

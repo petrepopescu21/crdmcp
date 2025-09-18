@@ -1,0 +1,34 @@
+---
+name: "simple-webapp"
+description: "Basic WebApp configuration for development environments"
+complexity: "simple"
+tags: ["webapp", "development", "basic"]
+environment: "development"
+---
+apiVersion: acme.io/v1
+kind: WebApp
+metadata:
+  name: simple-webapp
+  namespace: development
+  labels:
+    app: simple-webapp
+    tier: frontend
+    environment: development
+spec:
+  image: nginx:1.21-alpine
+  domain: dev.acme.io
+  replicas: 1
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+  monitoring:
+    enabled: true
+    port: 8080
+    path: "/health"
+  security:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: false

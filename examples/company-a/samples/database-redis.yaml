@@ -1,0 +1,46 @@
+---
+name: "redis-cache"
+description: "Redis cluster for caching and session storage"
+complexity: "medium"
+tags: ["database", "redis", "cache", "session", "memory"]
+environment: "production"
+---
+apiVersion: acme.io/v1
+kind: Database
+metadata:
+  name: redis-cache
+  namespace: production
+  labels:
+    app: redis-cache
+    engine: redis
+    tier: cache
+    environment: production
+    purpose: "session-store"
+spec:
+  engine: redis
+  version: "7.0"
+  replicas: 3
+  storage:
+    size: "20Gi"
+    storageClass: "fast-ssd"
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "1Gi"
+    limits:
+      cpu: "500m"
+      memory: "2Gi"
+  backup:
+    enabled: true
+    schedule: "0 6 * * *"  # Daily at 6 AM
+    retention: "7d"
+  security:
+    encryption:
+      atRest: false
+      inTransit: true
+    authentication:
+      enabled: true
+      method: "password"
+  monitoring:
+    enabled: true
+    metricsPort: 9121

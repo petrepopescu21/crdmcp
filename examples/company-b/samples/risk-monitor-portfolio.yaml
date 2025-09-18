@@ -1,0 +1,93 @@
+---
+name: "global-equity-portfolio-monitor"
+description: "Risk monitoring for global equity trading portfolios"
+complexity: "complex"
+tags: ["risk", "portfolio", "equity", "global", "real-time", "production"]
+environment: "production"
+---
+apiVersion: fintech.io/v1
+kind: RiskMonitor
+metadata:
+  name: global-equity-risk
+  namespace: risk-prod
+  labels:
+    portfolio-type: equity
+    geography: global
+    criticality: high
+    team: risk-management
+  annotations:
+    risk.fintech.io/business-unit: "global-markets"
+    risk.fintech.io/risk-owner: "jane.smith@fintech.io"
+    compliance.fintech.io/model-validation: "RISK-2024-005"
+spec:
+  portfolios:
+    - name: "US-Large-Cap"
+      type: "equity"
+      currency: "USD"
+      notional: "2.5B"
+    - name: "EU-Equity"
+      type: "equity"
+      currency: "EUR"
+      notional: "1.8B"
+    - name: "APAC-Equity"
+      type: "equity"
+      currency: "USD"
+      notional: "1.2B"
+    - name: "EM-Equity"
+      type: "equity"
+      currency: "USD"
+      notional: "800M"
+  riskLimits:
+    var:
+      daily: "0.5%"
+      weekly: "1.5%"
+      confidence: 0.99
+    stress:
+      scenarios:
+        - "2008-crisis"
+        - "covid-2020"
+        - "flash-crash"
+      maxLoss: "5%"
+    concentration:
+      singleIssuer: "2%"
+      sector: "10%"
+      country: "20%"
+  monitoring:
+    frequency: "real-time"
+    alerting:
+      enabled: true
+      channels:
+        - "email"
+        - "slack"
+        - "pagerduty"
+      breachLevels:
+        - "warning"
+        - "critical"
+        - "emergency"
+    dashboard:
+      enabled: true
+      refreshRate: "1s"
+  compliance:
+    regulations:
+      - "Basel-III"
+      - "CCAR"
+      - "FRTB"
+    reporting:
+      enabled: true
+      frequency: "daily"
+      format: "XML"
+  data:
+    sources:
+      - name: "bloomberg-positions"
+        type: "positions"
+        provider: "bloomberg"
+        frequency: "real-time"
+      - name: "market-data-feed"
+        type: "market-data"
+        provider: "refinitiv"
+        frequency: "real-time"
+      - name: "trade-feed"
+        type: "trades"
+        provider: "internal"
+        frequency: "real-time"
+    historicalPeriod: "5y"

@@ -1,0 +1,161 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: tradingengines.fintech.io
+  annotations:
+    description: "High-frequency trading engine for financial markets"
+    category: "trading"
+spec:
+  group: fintech.io
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object
+            required: ["markets", "strategy"]
+            properties:
+              markets:
+                type: array
+                description: "Financial markets to trade in"
+                items:
+                  type: string
+                  enum: ["NYSE", "NASDAQ", "LSE", "TSE", "FOREX", "CRYPTO"]
+              strategy:
+                type: object
+                required: ["type", "riskLimit"]
+                properties:
+                  type:
+                    type: string
+                    enum: ["arbitrage", "momentum", "mean-reversion", "market-making"]
+                    description: "Trading strategy type"
+                  riskLimit:
+                    type: string
+                    pattern: "^[0-9]+(\\.[0-9]+)?[%]?$"
+                    description: "Maximum risk exposure (percentage or absolute)"
+                  maxPositionSize:
+                    type: string
+                    pattern: "^[0-9]+(\\.[0-9]+)?[KMB]?$"
+                    description: "Maximum position size"
+                  frequency:
+                    type: string
+                    enum: ["low", "medium", "high", "ultra-high"]
+                    default: "medium"
+              latency:
+                type: object
+                properties:
+                  targetLatency:
+                    type: string
+                    pattern: "^[0-9]+(\\.[0-9]+)?(us|ms|s)$"
+                    default: "100us"
+                    description: "Target execution latency"
+                  networkOptimization:
+                    type: boolean
+                    default: true
+                  hardwareAcceleration:
+                    type: boolean
+                    default: false
+              compliance:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                    default: true
+                  regulations:
+                    type: array
+                    items:
+                      type: string
+                      enum: ["MiFID-II", "Dodd-Frank", "EMIR", "Basel-III", "SOX"]
+                  auditLog:
+                    type: boolean
+                    default: true
+                  realTimeMonitoring:
+                    type: boolean
+                    default: true
+              resources:
+                type: object
+                properties:
+                  cpu:
+                    type: string
+                    pattern: "^[0-9]+$"
+                    description: "Dedicated CPU cores"
+                  memory:
+                    type: string
+                    pattern: "^[0-9]+[KMGT]i$"
+                  storage:
+                    type: object
+                    properties:
+                      size:
+                        type: string
+                        pattern: "^[0-9]+[KMGT]i$"
+                      type:
+                        type: string
+                        enum: ["nvme", "ssd", "memory"]
+                        default: "nvme"
+              backup:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                    default: true
+                  frequency:
+                    type: string
+                    enum: ["real-time", "hourly", "daily"]
+                    default: "real-time"
+                  retention:
+                    type: string
+                    pattern: "^[0-9]+[yMwdhm]$"
+                    default: "7y"
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                enum: ["Initializing", "Active", "Paused", "Emergency-Stop", "Failed"]
+              activeMarkets:
+                type: array
+                items:
+                  type: string
+              latencyStats:
+                type: object
+                properties:
+                  p50:
+                    type: string
+                  p95:
+                    type: string
+                  p99:
+                    type: string
+              riskMetrics:
+                type: object
+                properties:
+                  currentExposure:
+                    type: string
+                  maxDrawdown:
+                    type: string
+                  sharpeRatio:
+                    type: number
+              tradingStats:
+                type: object
+                properties:
+                  tradesPerSecond:
+                    type: number
+                  successRate:
+                    type: number
+                  pnl:
+                    type: string
+  scope: Namespaced
+  names:
+    plural: tradingengines
+    singular: tradingengine
+    kind: TradingEngine
+    shortNames:
+    - te
+    - trading
+    categories:
+    - trading
+    - fintech

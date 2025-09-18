@@ -1,0 +1,47 @@
+---
+name: "production-webapp"
+description: "Production-ready WebApp with full security, monitoring, and scaling"
+complexity: "complex"
+tags: ["webapp", "production", "scaling", "monitoring", "security"]
+environment: "production"
+---
+apiVersion: acme.io/v1
+kind: WebApp
+metadata:
+  name: acme-frontend
+  namespace: production
+  labels:
+    app: acme-frontend
+    version: "2.1.4"
+    tier: frontend
+    environment: production
+    component: web-server
+  annotations:
+    deployment.kubernetes.io/revision: "15"
+    monitoring.acme.io/alert-rules: "high-priority"
+spec:
+  image: registry.acme.io/frontend:2.1.4
+  domain: app.acme.com
+  replicas: 5
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+  scaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 20
+    targetCPU: 70
+  monitoring:
+    enabled: true
+    port: 8080
+    path: "/metrics"
+  security:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowedRegistries:
+      - "registry.acme.io"
+      - "docker.io/library"

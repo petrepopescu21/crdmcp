@@ -1,0 +1,47 @@
+---
+name: "momentum-strategy"
+description: "Medium frequency momentum trading strategy for forex markets"
+complexity: "medium"
+tags: ["trading", "momentum", "forex", "medium-frequency", "staging"]
+environment: "staging"
+---
+apiVersion: fintech.io/v1
+kind: TradingEngine
+metadata:
+  name: momentum-forex
+  namespace: trading-staging
+  labels:
+    strategy: momentum
+    frequency: medium
+    markets: forex
+    risk-level: low
+    team: fx-trading
+spec:
+  markets:
+    - "FOREX"
+  strategy:
+    type: "momentum"
+    riskLimit: "1.0%"
+    maxPositionSize: "5M"
+    frequency: "medium"
+  latency:
+    targetLatency: "5ms"
+    networkOptimization: true
+    hardwareAcceleration: false
+  compliance:
+    enabled: true
+    regulations:
+      - "MiFID-II"
+      - "EMIR"
+    auditLog: true
+    realTimeMonitoring: true
+  resources:
+    cpu: "4"
+    memory: "16Gi"
+    storage:
+      size: "500Gi"
+      type: "ssd"
+  backup:
+    enabled: true
+    frequency: "hourly"
+    retention: "2y"

@@ -1,0 +1,135 @@
+---
+name: "real-time-market-data-pipeline"
+description: "High-throughput real-time market data ingestion and processing"
+complexity: "complex"
+tags: ["data", "market-data", "real-time", "streaming", "production"]
+environment: "production"
+---
+apiVersion: fintech.io/v1
+kind: DataPipeline
+metadata:
+  name: market-data-stream
+  namespace: data-prod
+  labels:
+    data-type: market-data
+    frequency: real-time
+    criticality: high
+    team: data-engineering
+  annotations:
+    data.fintech.io/business-unit: "market-data"
+    data.fintech.io/data-owner: "mike.johnson@fintech.io"
+    compliance.fintech.io/data-classification: "confidential"
+spec:
+  sources:
+    - name: "bloomberg-feed"
+      type: "market-data"
+      provider: "bloomberg"
+      format: "Binary"
+      frequency: "real-time"
+      encryption: true
+      compression: "lz4"
+    - name: "refinitiv-feed"
+      type: "market-data"
+      provider: "refinitiv"
+      format: "FIX"
+      frequency: "real-time"
+      encryption: true
+      compression: "snappy"
+    - name: "nasdaq-feed"
+      type: "trade-feed"
+      provider: "nasdaq"
+      format: "Binary"
+      frequency: "real-time"
+      encryption: true
+      compression: "lz4"
+  destinations:
+    - name: "time-series-store"
+      type: "time-series-db"
+      technology: "influxdb"
+      partitioning:
+        strategy: "time"
+        granularity: "hourly"
+      retention: "2y"
+    - name: "real-time-cache"
+      type: "cache"
+      technology: "redis"
+      retention: "24h"
+    - name: "data-lake"
+      type: "data-lake"
+      technology: "delta-lake"
+      partitioning:
+        strategy: "time"
+        granularity: "daily"
+      retention: "10y"
+    - name: "trading-feed"
+      type: "message-queue"
+      technology: "kafka"
+      retention: "7d"
+  processing:
+    type: "streaming"
+    engine: "flink"
+    transformations:
+      - name: "normalize-symbols"
+        type: "normalize"
+        config:
+          standard: "ISIN"
+      - name: "currency-conversion"
+        type: "enrich"
+        config:
+          source: "fx-rates"
+      - name: "outlier-detection"
+        type: "validate"
+        config:
+          method: "statistical"
+      - name: "calculate-vwap"
+        type: "aggregate"
+        config:
+          window: "1m"
+          metric: "vwap"
+    windowing:
+      type: "tumbling"
+      size: "1s"
+      watermark: "500ms"
+  quality:
+    validation:
+      enabled: true
+      rules:
+        - field: "price"
+          type: "range"
+          config:
+            min: 0
+            max: 1000000
+        - field: "symbol"
+          type: "not-null"
+        - field: "timestamp"
+          type: "not-null"
+        - field: "volume"
+          type: "range"
+          config:
+            min: 0
+    monitoring:
+      enabled: true
+      metrics:
+        - "throughput"
+        - "latency"
+        - "error-rate"
+        - "data-freshness"
+        - "completeness"
+      alerting: true
+  scaling:
+    mode: "auto"
+    minInstances: 5
+    maxInstances: 50
+    triggers:
+      - metric: "throughput"
+        threshold: "100000/s"
+      - metric: "lag"
+        threshold: "1s"
+  security:
+    encryption:
+      atRest: true
+      inTransit: true
+    authentication:
+      enabled: true
+      method: "mutual-tls"
+    dataClassification: "confidential"

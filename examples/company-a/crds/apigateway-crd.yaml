@@ -1,0 +1,160 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: apigateways.acme.io
+  annotations:
+    description: "API Gateway resource for managing microservice ingress at Acme Corp"
+    category: "networking"
+spec:
+  group: acme.io
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object
+            required: ["domain", "routes"]
+            properties:
+              domain:
+                type: string
+                description: "Primary domain for the API gateway"
+                pattern: "^[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+              routes:
+                type: array
+                description: "API route configurations"
+                items:
+                  type: object
+                  required: ["path", "service"]
+                  properties:
+                    path:
+                      type: string
+                      pattern: "^/.*"
+                      description: "API path pattern"
+                    service:
+                      type: object
+                      required: ["name"]
+                      properties:
+                        name:
+                          type: string
+                          description: "Target service name"
+                        port:
+                          type: integer
+                          minimum: 1
+                          maximum: 65535
+                          default: 80
+                        weight:
+                          type: integer
+                          minimum: 0
+                          maximum: 100
+                          default: 100
+                    methods:
+                      type: array
+                      items:
+                        type: string
+                        enum: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"]
+                      default: ["GET"]
+                    rateLimit:
+                      type: object
+                      properties:
+                        enabled:
+                          type: boolean
+                          default: false
+                        requestsPerMinute:
+                          type: integer
+                          minimum: 1
+                          default: 1000
+                    authentication:
+                      type: object
+                      properties:
+                        required:
+                          type: boolean
+                          default: false
+                        method:
+                          type: string
+                          enum: ["jwt", "apikey", "oauth2"]
+                          default: "jwt"
+              ssl:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                    default: true
+                  certificateSource:
+                    type: string
+                    enum: ["letsencrypt", "manual", "cloud"]
+                    default: "letsencrypt"
+                  forceRedirect:
+                    type: boolean
+                    default: true
+              cors:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                    default: true
+                  allowedOrigins:
+                    type: array
+                    items:
+                      type: string
+                    default: ["*"]
+                  allowedMethods:
+                    type: array
+                    items:
+                      type: string
+                    default: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+              monitoring:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                    default: true
+                  accessLogs:
+                    type: boolean
+                    default: true
+                  metrics:
+                    type: boolean
+                    default: true
+              scaling:
+                type: object
+                properties:
+                  minReplicas:
+                    type: integer
+                    minimum: 1
+                    default: 2
+                  maxReplicas:
+                    type: integer
+                    minimum: 1
+                    default: 10
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                enum: ["Pending", "Configuring", "Ready", "Failed"]
+              loadBalancerIP:
+                type: string
+              urls:
+                type: array
+                items:
+                  type: string
+              certificateStatus:
+                type: string
+                enum: ["Pending", "Ready", "Failed"]
+              routeCount:
+                type: integer
+  scope: Namespaced
+  names:
+    plural: apigateways
+    singular: apigateway
+    kind: APIGateway
+    shortNames:
+    - gw
+    - api
+    categories:
+    - networking
+    - acme
