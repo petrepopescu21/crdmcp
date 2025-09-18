@@ -1,0 +1,197 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: riskmonitors.fintech.io
+  annotations:
+    description: "Real-time risk monitoring and compliance system"
+    category: "risk-management"
+spec:
+  group: fintech.io
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object
+            required: ["portfolios", "riskLimits"]
+            properties:
+              portfolios:
+                type: array
+                description: "Portfolios to monitor"
+                items:
+                  type: object
+                  required: ["name", "type"]
+                  properties:
+                    name:
+                      type: string
+                      description: "Portfolio identifier"
+                    type:
+                      type: string
+                      enum: ["equity", "fixed-income", "derivatives", "commodity", "crypto", "forex"]
+                    currency:
+                      type: string
+                      pattern: "^[A-Z]{3}$"
+                      default: "USD"
+                    notional:
+                      type: string
+                      pattern: "^[0-9]+(\\.[0-9]+)?[KMB]?$"
+              riskLimits:
+                type: object
+                required: ["var", "stress"]
+                properties:
+                  var:
+                    type: object
+                    description: "Value at Risk limits"
+                    properties:
+                      daily:
+                        type: string
+                        pattern: "^[0-9]+(\\.[0-9]+)?[%]?$"
+                      weekly:
+                        type: string
+                        pattern: "^[0-9]+(\\.[0-9]+)?[%]?$"
+                      confidence:
+                        type: number
+                        minimum: 0.9
+                        maximum: 0.999
+                        default: 0.95
+                  stress:
+                    type: object
+                    description: "Stress test scenarios"
+                    properties:
+                      scenarios:
+                        type: array
+                        items:
+                          type: string
+                          enum: ["2008-crisis", "covid-2020", "flash-crash", "brexit", "custom"]
+                      maxLoss:
+                        type: string
+                        pattern: "^[0-9]+(\\.[0-9]+)?[%]?$"
+                  concentration:
+                    type: object
+                    properties:
+                      singleIssuer:
+                        type: string
+                        pattern: "^[0-9]+(\\.[0-9]+)?[%]$"
+                        default: "5%"
+                      sector:
+                        type: string
+                        pattern: "^[0-9]+(\\.[0-9]+)?[%]$"
+                        default: "15%"
+                      country:
+                        type: string
+                        pattern: "^[0-9]+(\\.[0-9]+)?[%]$"
+                        default: "25%"
+              monitoring:
+                type: object
+                properties:
+                  frequency:
+                    type: string
+                    enum: ["real-time", "1min", "5min", "15min", "1hour"]
+                    default: "real-time"
+                  alerting:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                        default: true
+                      channels:
+                        type: array
+                        items:
+                          type: string
+                          enum: ["email", "sms", "slack", "pagerduty", "webhook"]
+                      breachLevels:
+                        type: array
+                        items:
+                          type: string
+                          enum: ["warning", "critical", "emergency"]
+                  dashboard:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                        default: true
+                      refreshRate:
+                        type: string
+                        enum: ["1s", "5s", "10s", "30s", "1m"]
+                        default: "5s"
+              compliance:
+                type: object
+                properties:
+                  regulations:
+                    type: array
+                    items:
+                      type: string
+                      enum: ["Basel-III", "CCAR", "FRTB", "SA-CCR", "IFRS-9", "CECL"]
+                  reporting:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                        default: true
+                      frequency:
+                        type: string
+                        enum: ["daily", "weekly", "monthly", "quarterly"]
+                        default: "daily"
+                      format:
+                        type: string
+                        enum: ["CSV", "XML", "JSON", "PDF"]
+                        default: "XML"
+              data:
+                type: object
+                properties:
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+                          enum: ["market-data", "positions", "trades", "reference-data"]
+                        provider:
+                          type: string
+                        frequency:
+                          type: string
+                  historicalPeriod:
+                    type: string
+                    pattern: "^[0-9]+[yMwd]$"
+                    default: "2y"
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                enum: ["Initializing", "Active", "Degraded", "Failed"]
+              portfolioCount:
+                type: integer
+              riskMetrics:
+                type: object
+                properties:
+                  currentVaR:
+                    type: string
+                  utilizationRatio:
+                    type: number
+                  breachCount:
+                    type: integer
+              alertsActive:
+                type: integer
+              lastUpdate:
+                type: string
+                format: date-time
+  scope: Namespaced
+  names:
+    plural: riskmonitors
+    singular: riskmonitor
+    kind: RiskMonitor
+    shortNames:
+    - rm
+    - risk
+    categories:
+    - risk-management
+    - fintech

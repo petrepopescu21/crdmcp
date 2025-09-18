@@ -1,0 +1,53 @@
+---
+name: "high-frequency-arbitrage"
+description: "High-frequency arbitrage trading engine for equity markets"
+complexity: "complex"
+tags: ["trading", "hft", "arbitrage", "equity", "production"]
+environment: "production"
+---
+apiVersion: fintech.io/v1
+kind: TradingEngine
+metadata:
+  name: hft-arbitrage
+  namespace: trading-prod
+  labels:
+    strategy: arbitrage
+    frequency: ultra-high
+    markets: equity
+    risk-level: medium
+    team: algorithmic-trading
+  annotations:
+    trading.fintech.io/business-unit: "equity-trading"
+    trading.fintech.io/risk-owner: "john.doe@fintech.io"
+    compliance.fintech.io/approval-id: "TRADE-2024-001"
+spec:
+  markets:
+    - "NYSE"
+    - "NASDAQ"
+  strategy:
+    type: "arbitrage"
+    riskLimit: "2.5%"
+    maxPositionSize: "10M"
+    frequency: "ultra-high"
+  latency:
+    targetLatency: "50us"
+    networkOptimization: true
+    hardwareAcceleration: true
+  compliance:
+    enabled: true
+    regulations:
+      - "MiFID-II"
+      - "Dodd-Frank"
+      - "SOX"
+    auditLog: true
+    realTimeMonitoring: true
+  resources:
+    cpu: "16"
+    memory: "64Gi"
+    storage:
+      size: "2Ti"
+      type: "nvme"
+  backup:
+    enabled: true
+    frequency: "real-time"
+    retention: "7y"

@@ -14,73 +14,93 @@ export class DataLoader {
 
   async loadAllData(): Promise<LoadedData> {
     const startTime = Date.now();
-    this.logger.info(`🚀 Loading data from: ${this.config.dataDir}`);
+    const progress = this.logger.startProgress('Data Loading');
 
-    // Validate data directory structure
-    const validation = validateDataDirectory(this.config.dataDir);
+    const result = await this.logger.group('Loading CRD data', async () => {
+      this.logger.info(`🚀 Loading data from: ${this.config.dataDir}`);
 
-    if (validation.warnings.length > 0) {
-      validation.warnings.forEach((warning) => this.logger.warn(warning));
-    }
+      // Validate data directory structure
+      const validation = validateDataDirectory(this.config.dataDir);
 
-    if (!validation.valid) {
-      validation.errors.forEach((error) => this.logger.error(error));
-      throw new Error('Data directory validation failed');
-    }
+      this.logger.logValidationResult('Directory structure', validation.errors, validation.warnings);
 
-    // Initialize loaders
-    const crdLoader = new CRDLoader(this.config.dataDir, this.logger);
-    const sampleLoader = new SampleLoader(this.config.dataDir, this.logger);
-    const instructionLoader = new InstructionLoader(
-      this.config.dataDir,
-      this.logger
-    );
+      if (!validation.valid) {
+        progress.fail('Directory validation failed');
+        throw new Error('Data directory validation failed');
+      }
 
-    // Load all data in parallel
-    this.logger.debug('Starting parallel data loading...');
+      progress.update(1, 4, 'Directory validated');
 
-    const [crdResult, sampleResult, instructionResult] = await Promise.all([
-      crdLoader.loadCRDs(),
-      sampleLoader.loadSamples(),
-      instructionLoader.loadInstructions(),
-    ]);
+      // Initialize loaders with contextual loggers
+      const crdLogger = this.logger.withContext('CRD');
+      const sampleLogger = this.logger.withContext('Sample');
+      const instructionLogger = this.logger.withContext('Instruction');
 
-    // Compile results
-    const allErrors = [
-      ...crdResult.errors,
-      ...sampleResult.errors,
-      ...instructionResult.errors,
-    ];
+      const crdLoader = new CRDLoader(this.config.dataDir, crdLogger);
+      const sampleLoader = new SampleLoader(this.config.dataDir, sampleLogger);
+      const instructionLoader = new InstructionLoader(
+        this.config.dataDir,
+        instructionLogger
+      );
 
-    const allWarnings = [
-      ...crdResult.warnings,
-      ...sampleResult.warnings,
-      ...instructionResult.warnings,
-    ];
+      progress.update(2, 4, 'Loaders initialized');
 
-    const loadTime = Date.now() - startTime;
+      // Load all data in parallel
+      this.logger.debug('Starting parallel data loading...');
 
-    const loadedData: LoadedData = {
-      crds: crdResult.crds,
-      samples: sampleResult.samples,
-      instructions: instructionResult.instructions,
-      statistics: {
-        crdsLoaded: crdResult.crds.size,
-        samplesLoaded: Array.from(sampleResult.samples.values()).reduce(
-          (sum, arr) => sum + arr.length,
-          0
-        ),
-        instructionsLoaded: instructionResult.instructions.length,
-        loadTime,
-        errors: allErrors,
-        warnings: allWarnings,
-      },
-    };
+      const [crdResult, sampleResult, instructionResult] = await Promise.all([
+        crdLoader.loadCRDs(),
+        sampleLoader.loadSamples(),
+        instructionLoader.loadInstructions(),
+      ]);
 
-    // Log final statistics
-    this.logLoadingStatistics(loadedData);
+      progress.update(3, 4, 'Data loaded');
 
-    return loadedData;
+      // Compile results
+      const allErrors = [
+        ...crdResult.errors,
+        ...sampleResult.errors,
+        ...instructionResult.errors,
+      ];
+
+      const allWarnings = [
+        ...crdResult.warnings,
+        ...sampleResult.warnings,
+        ...instructionResult.warnings,
+      ];
+
+      const loadTime = Date.now() - startTime;
+
+      const loadedData: LoadedData = {
+        crds: crdResult.crds,
+        samples: sampleResult.samples,
+        instructions: instructionResult.instructions,
+        statistics: {
+          crdsLoaded: crdResult.crds.size,
+          samplesLoaded: Array.from(sampleResult.samples.values()).reduce(
+            (sum, arr) => sum + arr.length,
+            0
+          ),
+          instructionsLoaded: instructionResult.instructions.length,
+          loadTime,
+          errors: allErrors,
+          warnings: allWarnings,
+        },
+      };
+
+      // Log performance metrics
+      this.logger.logPerformanceMetrics({
+        'Total load time': loadTime,
+      });
+
+      // Log final statistics
+      this.logLoadingStatistics(loadedData);
+
+      progress.complete('All data loaded successfully');
+      return loadedData;
+    });
+
+    return result;
   }
 
   private logLoadingStatistics(data: LoadedData): void {

@@ -1,0 +1,113 @@
+---
+name: "main-api-gateway"
+description: "Production API Gateway with multiple microservice routes"
+complexity: "complex"
+tags: ["apigateway", "production", "microservices", "routing", "security"]
+environment: "production"
+---
+apiVersion: acme.io/v1
+kind: APIGateway
+metadata:
+  name: main-gateway
+  namespace: production
+  labels:
+    app: main-gateway
+    tier: gateway
+    environment: production
+    component: ingress
+  annotations:
+    gateway.acme.io/load-balancer: "nlb"
+    gateway.acme.io/ssl-policy: "strict"
+spec:
+  domain: api.acme.com
+  routes:
+    - path: "/auth/*"
+      service:
+        name: auth-service
+        port: 8080
+        weight: 100
+      methods: ["GET", "POST", "PUT", "DELETE"]
+      rateLimit:
+        enabled: true
+        requestsPerMinute: 500
+      authentication:
+        required: false  # Auth service handles its own auth
+        method: "jwt"
+
+    - path: "/users/*"
+      service:
+        name: user-service
+        port: 8080
+        weight: 100
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+      rateLimit:
+        enabled: true
+        requestsPerMinute: 1000
+      authentication:
+        required: true
+        method: "jwt"
+
+    - path: "/orders/*"
+      service:
+        name: order-service
+        port: 8080
+        weight: 100
+      methods: ["GET", "POST", "PUT", "DELETE"]
+      rateLimit:
+        enabled: true
+        requestsPerMinute: 2000
+      authentication:
+        required: true
+        method: "jwt"
+
+    - path: "/payments/*"
+      service:
+        name: payment-service
+        port: 8080
+        weight: 100
+      methods: ["POST", "GET"]
+      rateLimit:
+        enabled: true
+        requestsPerMinute: 200
+      authentication:
+        required: true
+        method: "jwt"
+
+    - path: "/health"
+      service:
+        name: health-service
+        port: 8080
+        weight: 100
+      methods: ["GET"]
+      rateLimit:
+        enabled: false
+      authentication:
+        required: false
+
+  ssl:
+    enabled: true
+    certificateSource: "letsencrypt"
+    forceRedirect: true
+
+  cors:
+    enabled: true
+    allowedOrigins:
+      - "https://app.acme.com"
+      - "https://admin.acme.com"
+      - "https://*.acme.dev"
+    allowedMethods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "DELETE"
+      - "PATCH"
+      - "OPTIONS"
+
+  monitoring:
+    enabled: true
+    accessLogs: true
+    metrics: true
+
+  scaling:
+    minReplicas: 3
+    maxReplicas: 15

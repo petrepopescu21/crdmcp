@@ -1,0 +1,49 @@
+---
+name: "postgresql-cluster"
+description: "Production PostgreSQL cluster with high availability and backups"
+complexity: "complex"
+tags: ["database", "postgresql", "production", "ha", "backup"]
+environment: "production"
+---
+apiVersion: acme.io/v1
+kind: Database
+metadata:
+  name: main-postgres
+  namespace: production
+  labels:
+    app: main-postgres
+    engine: postgresql
+    tier: database
+    environment: production
+    backup-policy: "daily"
+  annotations:
+    database.acme.io/owner: "platform-team"
+    database.acme.io/business-unit: "core-services"
+spec:
+  engine: postgresql
+  version: "14.8"
+  replicas: 3
+  storage:
+    size: "100Gi"
+    storageClass: "fast-ssd"
+  resources:
+    requests:
+      cpu: "1000m"
+      memory: "2Gi"
+    limits:
+      cpu: "2000m"
+      memory: "4Gi"
+  backup:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    retention: "30d"
+  security:
+    encryption:
+      atRest: true
+      inTransit: true
+    authentication:
+      enabled: true
+      method: "password"
+  monitoring:
+    enabled: true
+    metricsPort: 9187

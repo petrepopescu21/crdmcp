@@ -1,0 +1,238 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: datapipelines.fintech.io
+  annotations:
+    description: "Financial data ingestion and processing pipeline"
+    category: "data-processing"
+spec:
+  group: fintech.io
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: ["spec"]
+        properties:
+          spec:
+            type: object
+            required: ["sources", "destinations", "processing"]
+            properties:
+              sources:
+                type: array
+                description: "Data sources to ingest from"
+                items:
+                  type: object
+                  required: ["name", "type"]
+                  properties:
+                    name:
+                      type: string
+                      description: "Source identifier"
+                    type:
+                      type: string
+                      enum: ["market-data", "trade-feed", "reference-data", "news-feed", "social-media", "economic-indicators"]
+                    provider:
+                      type: string
+                      enum: ["bloomberg", "refinitiv", "ice", "cme", "nasdaq", "reuters", "twitter", "reddit"]
+                    format:
+                      type: string
+                      enum: ["FIX", "JSON", "XML", "CSV", "Avro", "Parquet", "Binary"]
+                    frequency:
+                      type: string
+                      enum: ["real-time", "1s", "1m", "5m", "15m", "1h", "daily", "batch"]
+                    encryption:
+                      type: boolean
+                      default: true
+                    compression:
+                      type: string
+                      enum: ["none", "gzip", "lz4", "snappy", "zstd"]
+                      default: "lz4"
+              destinations:
+                type: array
+                description: "Data destinations for processed data"
+                items:
+                  type: object
+                  required: ["name", "type"]
+                  properties:
+                    name:
+                      type: string
+                    type:
+                      type: string
+                      enum: ["time-series-db", "data-lake", "cache", "message-queue", "api"]
+                    technology:
+                      type: string
+                      enum: ["kafka", "kinesis", "redis", "influxdb", "elasticsearch", "s3", "delta-lake"]
+                    partitioning:
+                      type: object
+                      properties:
+                        strategy:
+                          type: string
+                          enum: ["time", "symbol", "asset-class", "geography"]
+                        granularity:
+                          type: string
+                          enum: ["hourly", "daily", "weekly", "monthly"]
+                    retention:
+                      type: string
+                      pattern: "^[0-9]+[yMwdh]$"
+                      default: "2y"
+              processing:
+                type: object
+                required: ["type"]
+                properties:
+                  type:
+                    type: string
+                    enum: ["streaming", "batch", "hybrid"]
+                  engine:
+                    type: string
+                    enum: ["kafka-streams", "flink", "spark", "storm", "custom"]
+                  transformations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+                          enum: ["filter", "aggregate", "join", "enrich", "validate", "normalize"]
+                        config:
+                          type: object
+                  windowing:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum: ["tumbling", "hopping", "sliding", "session"]
+                      size:
+                        type: string
+                        pattern: "^[0-9]+[smhd]$"
+                      watermark:
+                        type: string
+                        pattern: "^[0-9]+[smhd]$"
+              quality:
+                type: object
+                properties:
+                  validation:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                        default: true
+                      rules:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            field:
+                              type: string
+                            type:
+                              type: string
+                              enum: ["not-null", "range", "format", "uniqueness", "referential"]
+                            config:
+                              type: object
+                  monitoring:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                        default: true
+                      metrics:
+                        type: array
+                        items:
+                          type: string
+                          enum: ["throughput", "latency", "error-rate", "data-freshness", "completeness"]
+                      alerting:
+                        type: boolean
+                        default: true
+              scaling:
+                type: object
+                properties:
+                  mode:
+                    type: string
+                    enum: ["manual", "auto"]
+                    default: "auto"
+                  minInstances:
+                    type: integer
+                    minimum: 1
+                    default: 2
+                  maxInstances:
+                    type: integer
+                    minimum: 1
+                    default: 20
+                  triggers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        metric:
+                          type: string
+                          enum: ["cpu", "memory", "throughput", "lag"]
+                        threshold:
+                          type: string
+              security:
+                type: object
+                properties:
+                  encryption:
+                    type: object
+                    properties:
+                      atRest:
+                        type: boolean
+                        default: true
+                      inTransit:
+                        type: boolean
+                        default: true
+                  authentication:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                        default: true
+                      method:
+                        type: string
+                        enum: ["mutual-tls", "oauth", "api-key", "kerberos"]
+                  dataClassification:
+                    type: string
+                    enum: ["public", "internal", "confidential", "restricted"]
+                    default: "confidential"
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                enum: ["Initializing", "Running", "Degraded", "Failed", "Maintenance"]
+              throughput:
+                type: object
+                properties:
+                  messagesPerSecond:
+                    type: number
+                  bytesPerSecond:
+                    type: string
+              latency:
+                type: object
+                properties:
+                  p50:
+                    type: string
+                  p95:
+                    type: string
+                  p99:
+                    type: string
+              errorRate:
+                type: number
+              lastProcessed:
+                type: string
+                format: date-time
+              instances:
+                type: integer
+  scope: Namespaced
+  names:
+    plural: datapipelines
+    singular: datapipeline
+    kind: DataPipeline
+    shortNames:
+    - dp
+    - pipeline
+    categories:
+    - data-processing
+    - fintech
