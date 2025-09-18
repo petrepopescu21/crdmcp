@@ -32,8 +32,34 @@ export class ResourceDetailsTool extends BaseTool {
         );
       }
 
-      // Find the CRD
-      const crd = this.data.crds.get(resourceType);
+      // Find the CRD - try exact match first, then alternative lookups
+      let crd = this.data.crds.get(resourceType);
+
+      if (!crd) {
+        // Try to find by kind only
+        for (const [, candidateCrd] of this.data.crds) {
+          if (candidateCrd.kind.toLowerCase() === resourceType.toLowerCase()) {
+            crd = candidateCrd;
+            break;
+          }
+        }
+      }
+
+      if (!crd) {
+        // Try to find by short name
+        for (const [, candidateCrd] of this.data.crds) {
+          if (
+            candidateCrd.shortNames?.some(
+              (shortName) =>
+                shortName.toLowerCase() === resourceType.toLowerCase()
+            )
+          ) {
+            crd = candidateCrd;
+            break;
+          }
+        }
+      }
+
       if (!crd) {
         const suggestions = this.findSimilarResources(resourceType, 5);
         return this.error(

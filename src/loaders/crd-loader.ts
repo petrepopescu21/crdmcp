@@ -42,7 +42,7 @@ export class CRDLoader {
       for (const filePath of files) {
         try {
           const fileContent = readFileSync(filePath, 'utf8');
-          const documents = loadAll(fileContent) as any[];
+          const documents = loadAll(fileContent) as unknown[];
 
           for (const doc of documents) {
             if (!doc || typeof doc !== 'object') continue;
@@ -90,15 +90,26 @@ export class CRDLoader {
     return { crds, errors, warnings };
   }
 
-  private isCRDDocument(doc: any): doc is CRDDefinition {
+  private isCRDDocument(doc: unknown): doc is CRDDefinition {
     return (
-      doc &&
+      doc !== null &&
       typeof doc === 'object' &&
-      doc.kind === 'CustomResourceDefinition' &&
-      doc.spec &&
-      doc.spec.group &&
-      doc.spec.names &&
-      doc.spec.names.kind
+      'kind' in doc &&
+      (doc as Record<string, unknown>).kind === 'CustomResourceDefinition' &&
+      'spec' in doc &&
+      typeof (doc as Record<string, unknown>).spec === 'object' &&
+      (doc as Record<string, unknown>).spec !== null &&
+      'group' in
+        ((doc as Record<string, unknown>).spec as Record<string, unknown>) &&
+      'names' in
+        ((doc as Record<string, unknown>).spec as Record<string, unknown>) &&
+      typeof ((doc as Record<string, unknown>).spec as Record<string, unknown>)
+        .names === 'object' &&
+      ((doc as Record<string, unknown>).spec as Record<string, unknown>)
+        .names !== null &&
+      'kind' in
+        (((doc as Record<string, unknown>).spec as Record<string, unknown>)
+          .names as Record<string, unknown>)
     );
   }
 

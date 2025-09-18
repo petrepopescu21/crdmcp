@@ -101,7 +101,7 @@ export class InstructionLoader {
   }
 
   private extractTitle(
-    frontmatter: any,
+    frontmatter: Record<string, unknown>,
     content: string,
     fileName: string
   ): string {
@@ -125,7 +125,7 @@ export class InstructionLoader {
   }
 
   private extractTags(
-    frontmatter: any,
+    frontmatter: Record<string, unknown>,
     content: string,
     fileName: string
   ): string[] {
@@ -133,7 +133,7 @@ export class InstructionLoader {
 
     // Add tags from frontmatter
     if (Array.isArray(frontmatter.tags)) {
-      frontmatter.tags.forEach((tag: any) => {
+      frontmatter.tags.forEach((tag: unknown) => {
         if (typeof tag === 'string') {
           tags.add(tag.toLowerCase());
         }

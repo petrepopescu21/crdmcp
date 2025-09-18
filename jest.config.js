@@ -11,21 +11,10 @@ export default {
       'ts-jest',
       {
         useESM: true,
-        tsconfig: {
-          module: 'esnext',
-          target: 'es2022',
-          moduleResolution: 'node',
-          allowSyntheticDefaultImports: true,
-          esModuleInterop: true,
-        },
+        tsconfig: 'tsconfig.test.json',
       },
     ],
   },
   testMatch: ['**/tests/**/*.test.ts'],
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/index.ts'],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
-  },
 };
