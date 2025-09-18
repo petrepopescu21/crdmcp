@@ -48,13 +48,20 @@ async function main() {
           inputSchema: toolDef.inputSchema,
         },
         async (args: any) => {
-          logger.error(`🔧 Executing tool: ${toolDef.name} with args:`, JSON.stringify(args, null, 2));
+          logger.error(
+            `🔧 Executing tool: ${toolDef.name} with args:`,
+            JSON.stringify(args, null, 2)
+          );
           const startTime = Date.now();
 
           try {
             const result = await toolRegistry.executeTool(toolDef.name, args);
             logger.timing(`Tool ${toolDef.name}`, startTime);
-            logger.error(`🔧 Tool ${toolDef.name} result:`, { success: result.success, hasData: !!result.data, error: result.error });
+            logger.error(`🔧 Tool ${toolDef.name} result:`, {
+              success: result.success,
+              hasData: !!result.data,
+              error: result.error,
+            });
 
             if (result.success) {
               return {
@@ -66,7 +73,9 @@ async function main() {
                 ],
               };
             } else {
-              logger.error(`🔧 Tool ${toolDef.name} returned error: ${result.error}`);
+              logger.error(
+                `🔧 Tool ${toolDef.name} returned error: ${result.error}`
+              );
               return {
                 content: [
                   {
@@ -85,7 +94,10 @@ async function main() {
             }
           } catch (error) {
             logger.error(`🔧 Tool ${toolDef.name} threw exception:`, error);
-            logger.error(`🔧 Stack trace:`, error instanceof Error ? error.stack : 'No stack trace');
+            logger.error(
+              `🔧 Stack trace:`,
+              error instanceof Error ? error.stack : 'No stack trace'
+            );
             return {
               content: [
                 {
@@ -135,12 +147,12 @@ async function main() {
 
     // Start the server
     const transport = new StdioServerTransport();
-    
+
     // Add connection event handlers for debugging
     transport.onclose = () => {
       logger.error('🔌 MCP transport connection closed');
     };
-    
+
     transport.onerror = (error: any) => {
       logger.error('🔌 MCP transport error:', error);
     };

@@ -33,7 +33,7 @@ export class SampleLoader {
       const files = await glob('**/*.{yml,yaml}', {
         cwd: sampleDir,
         nodir: true,
-        absolute: true
+        absolute: true,
       });
 
       this.logger.debug(`Found ${files.length} sample files to process`);

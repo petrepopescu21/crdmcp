@@ -13,10 +13,30 @@ export class ListResourcesTool extends BaseTool {
 
   get inputSchema(): any {
     return {
-      category: z.enum(['database', 'messaging', 'service', 'storage', 'networking', 'security']).optional().describe('Filter by resource category (database, messaging, service, storage, networking, security)'),
-      search: z.string().optional().describe('Search term to filter resources by name, group, or description'),
+      category: z
+        .enum([
+          'database',
+          'messaging',
+          'service',
+          'storage',
+          'networking',
+          'security',
+        ])
+        .optional()
+        .describe(
+          'Filter by resource category (database, messaging, service, storage, networking, security)'
+        ),
+      search: z
+        .string()
+        .optional()
+        .describe(
+          'Search term to filter resources by name, group, or description'
+        ),
       group: z.string().optional().describe('Filter by specific API group'),
-      scope: z.enum(['Namespaced', 'Cluster']).optional().describe('Filter by resource scope'),
+      scope: z
+        .enum(['Namespaced', 'Cluster'])
+        .optional()
+        .describe('Filter by resource scope'),
     };
   }
 

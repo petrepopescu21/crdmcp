@@ -31,10 +31,10 @@ export class CRDLoader {
 
     try {
       // Find all YAML files recursively
-      const files = await glob('**/*.{yml,yaml}', { 
+      const files = await glob('**/*.{yml,yaml}', {
         cwd: crdDir,
         nodir: true,
-        absolute: true
+        absolute: true,
       });
 
       this.logger.debug(`Found ${files.length} CRD files to process`);

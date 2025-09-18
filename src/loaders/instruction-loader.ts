@@ -33,7 +33,7 @@ export class InstructionLoader {
       const files = await glob('**/*.{md,txt,markdown}', {
         cwd: instructionDir,
         nodir: true,
-        absolute: true
+        absolute: true,
       });
 
       this.logger.debug(`Found ${files.length} instruction files to process`);

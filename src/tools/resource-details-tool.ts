@@ -13,7 +13,11 @@ export class ResourceDetailsTool extends BaseTool {
 
   get inputSchema(): any {
     return {
-      resourceType: z.string().describe('Resource type in format "group/kind" (e.g., "redis.example.com/RedisCluster")'),
+      resourceType: z
+        .string()
+        .describe(
+          'Resource type in format "group/kind" (e.g., "redis.example.com/RedisCluster")'
+        ),
     };
   }
 

@@ -13,10 +13,36 @@ export class ResourceGuidanceTool extends BaseTool {
 
   get inputSchema(): any {
     return {
-      resourceType: z.string().optional().describe('Specific resource type (group/kind) or kind to get guidance for'),
-      category: z.enum(['database', 'messaging', 'service', 'storage', 'networking', 'security']).optional().describe('Resource category to get guidance for'),
-      tags: z.array(z.string()).optional().describe('Filter guidance by specific tags'),
-      limit: z.number().min(1).max(50).default(10).optional().describe('Maximum number of guidance documents to return (default: 10)'),
+      resourceType: z
+        .string()
+        .optional()
+        .describe(
+          'Specific resource type (group/kind) or kind to get guidance for'
+        ),
+      category: z
+        .enum([
+          'database',
+          'messaging',
+          'service',
+          'storage',
+          'networking',
+          'security',
+        ])
+        .optional()
+        .describe('Resource category to get guidance for'),
+      tags: z
+        .array(z.string())
+        .optional()
+        .describe('Filter guidance by specific tags'),
+      limit: z
+        .number()
+        .min(1)
+        .max(50)
+        .default(10)
+        .optional()
+        .describe(
+          'Maximum number of guidance documents to return (default: 10)'
+        ),
     };
   }
 

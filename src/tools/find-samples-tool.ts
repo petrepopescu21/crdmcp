@@ -13,10 +13,22 @@ export class FindSamplesTool extends BaseTool {
 
   get inputSchema(): any {
     return {
-      kind: z.string().describe('Resource kind to find samples for (e.g., "RedisCluster")'),
-      complexity: z.enum(['simple', 'intermediate', 'advanced']).optional().describe('Filter by sample complexity'),
-      tags: z.array(z.string()).optional().describe('Filter samples by tags (e.g., ["production", "ha"])'),
-      includeContent: z.boolean().default(true).optional().describe('Include full manifest content in response (default: true)'),
+      kind: z
+        .string()
+        .describe('Resource kind to find samples for (e.g., "RedisCluster")'),
+      complexity: z
+        .enum(['simple', 'intermediate', 'advanced'])
+        .optional()
+        .describe('Filter by sample complexity'),
+      tags: z
+        .array(z.string())
+        .optional()
+        .describe('Filter samples by tags (e.g., ["production", "ha"])'),
+      includeContent: z
+        .boolean()
+        .default(true)
+        .optional()
+        .describe('Include full manifest content in response (default: true)'),
     };
   }
 
