@@ -10,6 +10,9 @@ Configure the following required status checks for the `main` branch:
 - ✅ **CI / Build & Type Check** - TypeScript compilation must succeed
 - ✅ **CI / All CI Checks** - Summary check that all CI steps passed
 
+### Manual/On-Demand Workflows:
+- 🤖 **Claude Code Review** - Manual dispatch workflow for code reviews
+
 ### Recommended Settings:
 1. **Require branches to be up to date before merging**: Yes
 2. **Require conversation resolution before merging**: Yes
@@ -41,3 +44,40 @@ Configure the following required status checks for the `main` branch:
 
 ### Coverage Reports:
 Test coverage reports are automatically generated and uploaded as artifacts for each PR.
+
+## Manual Claude Code Review
+
+The Claude Code Review workflow uses manual dispatch for complete control:
+
+### How to Run a Review:
+
+1. **Go to Actions Tab**:
+   - Navigate to **Actions** → **Claude Code Review**
+   - Click **Run workflow**
+
+2. **Fill in Parameters**:
+   - **PR Number**: Enter the PR number you want to review (e.g., `123`)
+   - **Review Scope**: Choose focus area:
+     - `full`: Complete code review covering all aspects
+     - `security`: Focus on security vulnerabilities and best practices
+     - `performance`: Focus on performance issues and optimizations
+     - `style`: Focus on code style, formatting, and conventions
+
+3. **Run Review**:
+   - Click **Run workflow**
+   - Claude will review the specified PR and post comments directly on it
+
+### Requirements:
+
+- **CLAUDE_CODE_OAUTH_TOKEN**: Must be set as a repository secret
+- **Permissions**: Workflow has write access to pull requests and issues
+- **Manual Control**: Only runs when explicitly triggered by a maintainer
+
+### Benefits:
+
+- ✅ **Complete Control**: Reviews only run when you want them
+- ✅ **Targeted Reviews**: Choose specific scope (security, performance, etc.)
+- ✅ **No Automatic Execution**: Never runs without explicit approval
+- ✅ **Flexible**: Can review any PR at any time
+
+This approach gives you full control over when and how Claude reviews your code.
