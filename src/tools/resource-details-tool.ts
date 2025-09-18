@@ -37,7 +37,7 @@ export class ResourceDetailsTool extends BaseTool {
 
       if (!crd) {
         // Try to find by kind only
-        for (const [key, candidateCrd] of this.data.crds) {
+        for (const [, candidateCrd] of this.data.crds) {
           if (candidateCrd.kind.toLowerCase() === resourceType.toLowerCase()) {
             crd = candidateCrd;
             break;
@@ -47,10 +47,13 @@ export class ResourceDetailsTool extends BaseTool {
 
       if (!crd) {
         // Try to find by short name
-        for (const [key, candidateCrd] of this.data.crds) {
-          if (candidateCrd.shortNames?.some(
-            shortName => shortName.toLowerCase() === resourceType.toLowerCase()
-          )) {
+        for (const [, candidateCrd] of this.data.crds) {
+          if (
+            candidateCrd.shortNames?.some(
+              (shortName) =>
+                shortName.toLowerCase() === resourceType.toLowerCase()
+            )
+          ) {
             crd = candidateCrd;
             break;
           }

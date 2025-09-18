@@ -99,11 +99,17 @@ export class CRDLoader {
       'spec' in doc &&
       typeof (doc as Record<string, unknown>).spec === 'object' &&
       (doc as Record<string, unknown>).spec !== null &&
-      'group' in ((doc as Record<string, unknown>).spec as Record<string, unknown>) &&
-      'names' in ((doc as Record<string, unknown>).spec as Record<string, unknown>) &&
-      typeof ((doc as Record<string, unknown>).spec as Record<string, unknown>).names === 'object' &&
-      ((doc as Record<string, unknown>).spec as Record<string, unknown>).names !== null &&
-      'kind' in (((doc as Record<string, unknown>).spec as Record<string, unknown>).names as Record<string, unknown>)
+      'group' in
+        ((doc as Record<string, unknown>).spec as Record<string, unknown>) &&
+      'names' in
+        ((doc as Record<string, unknown>).spec as Record<string, unknown>) &&
+      typeof ((doc as Record<string, unknown>).spec as Record<string, unknown>)
+        .names === 'object' &&
+      ((doc as Record<string, unknown>).spec as Record<string, unknown>)
+        .names !== null &&
+      'kind' in
+        (((doc as Record<string, unknown>).spec as Record<string, unknown>)
+          .names as Record<string, unknown>)
     );
   }
 
