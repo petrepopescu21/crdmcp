@@ -115,3 +115,12 @@ export class DataLoader {
 export * from './crd-loader.js';
 export * from './sample-loader.js';
 export * from './instruction-loader.js';
+
+export async function loadAllData(dataDir: string): Promise<LoadedData> {
+  const config: ServerConfig = {
+    dataDir,
+    verbose: false,
+  };
+  const loader = new DataLoader(config);
+  return loader.loadAllData();
+}

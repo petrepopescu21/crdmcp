@@ -1,0 +1,10 @@
+apiVersion: example.com/v1
+kind: TestResource
+metadata:
+  name: sample-test
+  namespace: default
+  labels:
+    environment: test
+spec:
+  replicas: 3
+  enabled: true
